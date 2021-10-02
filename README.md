@@ -21,10 +21,10 @@ and IAM credentials
 ## Hello, world!
 1. Clone this repository, open a terminal in the repository root
   ```bash
-  git clone this/repository
-  cd  this/repository
+  git clone git@github.com:ieferrari/aws-lambda-python-terraform-example.git
+  cd  aws-lambda-python-terraform-example
   ```
-1. Crete the env files:
+1. Crete the env files (make sure to have every other environment deactivated):
   ```bash
   chmod +x ./create_env.sh
   ./create_env.sh
@@ -106,24 +106,47 @@ Other option is to create a container for your app, and run the container inside
 ***
 ## Python apps for lambda
 
-create virtual env
+create virtual env and install requirements for your app, go to the root folder of the repository and run (make sure to deactivate every other repository first):
 ```bash
-CODE
+python3 -m venv ./env
+source ./env/bin/activate
+pip install -r ./app/requirements.txt
+
+# The same is done by running **_create_env.sh_**
 ```
-this is done by running **_create_env.sh_**
 
 
-create a zip file with all the content of **/env/lib/Python3.7/sit-packages/** copied at the same level of the main file of the project, this way Python can call every library without any special path.
+
+Create a zip file with all the content of **/env/lib/Python3.7/sit-packages/** copied at the same level of the main file of the project, this way Python can call every library without any special path.
 
 In this case we copy the content of **/app** and **/env/lib/Python3.7/sit-packages/** to **/temp/**, then you can create a zip file to upload to S3
+
 ```bash
-CODE
+APP_DIR=./app/*
+PACKAGES_DIR=./env/lib/python3.7/site-packages/*
+TEMPORARY_DIR=./temp
+# change the DIR variables to address the custom path of your project.
+
+mkdir $TEMPORARY_DIR
+cp -r $PACKAGES_DIR $TEMPORARY_DIR
+cp -r $APP_DIR $TEMPORARY_DIR
+
+# The same is done when you run **_upload.sh_**
 ```
-this is done when you run **_upload.sh_**
+
 
 Remember to add a handler for Lambda, in this case, we use Mangum. There are other options, like chalice, the aws-Python-micro-web-framework, AFAIK there is no advantage over FastAPI+Mangum, and if you use chalice you may want to consider the vendor lock risk.
-```Python
-CODE
+```python
+from mangum import Mangum
+from fastapi import FastAPI
+[...]
+
+app = FastAPI()
+[...]
+
+# create a handler for Lambda, this is the entry point to call the app
+handler = Mangum(app)
+
 ```
 check the usage example of Mangum in **/app/hello_lambda.py**
 
@@ -132,20 +155,23 @@ check the usage example of Mangum in **/app/hello_lambda.py**
 ## Terraform
 
 
-[check]( https://www.terraform.io/docs/providers/aws/index.html)
+[see]( https://www.terraform.io/docs/providers/aws/index.html)
 
 
+check the comments inside **main.tf** for more details about the terraform implementation
 
-run `terraform init`
+### Basic commands:
+```terraform
+terraform init
 
-run `terraform apply`
+terraform apply
 
-run `terraform destroy`
-
+terraform destroy
+```
 
 ### Terraform output
 
-can use the output for other automation tasks or scripts:
+You can use the output for other automation tasks or scripts:
 
     $ terraform output -raw deployment_invoke_url
     https://example.url/for/yor/api/endoint
@@ -169,11 +195,11 @@ $ terraform output -ra
       }
     }
 
-### Ping Test for your API
 
 
-## Desploy
-inside the root directory of the project run:
+For example, to test your API, run:
+```bash
+curl $(terraform output -raw deployment_invoke_url)
 
-    cmod +x upload.sh
-    ./upload.sh
+#  the same is done at the end of **upload.sh** to test the API
+```
