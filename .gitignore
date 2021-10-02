@@ -2,7 +2,8 @@ temp/
 *.hcl
 *.zip
 .terraform
-*.tfstat*
+terraform.tfstate
+terraform.tfstate.backup
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
