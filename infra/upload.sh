@@ -1,8 +1,8 @@
 #!/bin/bash
 # script vatiables
-APP_DIR=./app/*
-PACKAGES_DIR=./env/lib/python3.7/site-packages/*
-TEMPORARY_DIR=./temp
+APP_DIR=../app/*
+PACKAGES_DIR=../env/lib/python3.7/site-packages/*
+TEMPORARY_DIR=../temp
 
 # creating temporary folder to zip
 rm -rf $TEMPORARY_DIR

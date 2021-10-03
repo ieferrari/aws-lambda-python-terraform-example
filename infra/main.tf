@@ -1,31 +1,17 @@
-# resource "null_resource" "temporary_copy" {
-#   provisioner "local-exec" {
-#     command = "echo 'hola mundo'; rm -rf ./temp; mkdir ./temp; cp -r ./env/lib/python3.7/site-packages/*  ./temp/ ; cp -r ./app/* ./temp/ "
-#   }
-# }
-
-# Specify the provider and access details
 provider "aws" {
   region = "${var.aws_region}"
-
-
 }
+
 
 provider "archive" {
 }
 
 
-
-
-
 data "archive_file" "zip" {
   type        = "zip"
-  source_dir = "temp"
+  source_dir = "../temp"
   output_path = "my_lambda_func.zip"
 }
-
-
-
 
 
 data "aws_iam_policy_document" "policy" {
@@ -44,7 +30,6 @@ data "aws_iam_policy_document" "policy" {
 
 # #############################################################################
 # S3 bucket configuration
-
 resource "random_pet" "lambda_bucket_name" {
   prefix = "my-new-bucket-name"
   length = 4
@@ -82,7 +67,7 @@ resource "aws_iam_role" "iam_for_lambda" {
 
 resource "aws_lambda_function" "my_lambda_func" {
 #  depends_on = [null_resource.temporary_copy]
-  function_name = "my_lambda_NAME"
+  function_name = "${var.lambda_name}"
 
 
   # for S3 bucket
@@ -111,7 +96,7 @@ resource "aws_lambda_function" "my_lambda_func" {
 # API gateway configuration
 
 resource "aws_api_gateway_rest_api" "example" {
-  name        = "ServerlessExample"
+  name        = "${var.api_gateway_name}"
   description = "Terraform Serverless Application Example"
 }
 

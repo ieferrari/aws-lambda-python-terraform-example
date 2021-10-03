@@ -24,24 +24,36 @@ and IAM credentials
   git clone git@github.com:ieferrari/aws-lambda-python-terraform-example.git
   cd  aws-lambda-python-terraform-example
   ```
-1. Crete the env files (make sure to have every other environment deactivated):
+2. Crete the env files (make sure to have every other environment deactivated):
   ```bash
   chmod +x ./create_env.sh
   ./create_env.sh
   ```
-1. upload to AWS-lambda (may apply charges)
+3. upload to AWS-lambda (may apply charges)
   ```bash
+  cd ./infra
+  terraform init
   chmod +x ./upload.sh
   ./upload.sh
   ```
-1. you will see a prompt to confirm the Terraform plan, if everything looks good, type "yes". If everything went right, after a couple of minutes you will see this:
+4. you will see a prompt to confirm the Terraform plan, if everything looks good, type "yes". If everything went right, after a couple of minutes you will see this:
 ```
 Testing API endpoint
 ...
 {"Hello":"World!!!"}
 ```
 
+5. When you finish, your testing, remember to clean up and delete the infrastructure running:
+```terraform
+terraform destroy
+```
 
+
+
+***
+## Troubleshooting
+
+Depending on your Terraform, you may need to run **terraform init** multiple timer until you get the **Terraform has been successfully initialized!** message, for the first time. Then you can run **upload.sh** normally.
 
 
 ***
@@ -50,13 +62,13 @@ Testing API endpoint
 1. Replace  **/app** with the code of your Python App, or change the value of **APP_DIR** in **upload.sh** to make it point to the path of your app.
   * this example uses FastAPI, is almost the same for Flask an other micro-frameworks.
   * Remember to import Mangum and create a handler for the main function. this is going to be used by Lambda.
-1. In **/env**  create a folder for the virtual environment with the requirements of your Python app, or change the value of **PACKAGES_DIR** in **upload.sh**.
+2. In **/env**  create a folder for the virtual environment with the requirements of your Python app, or change the value of **PACKAGES_DIR** in **upload.sh**.
   * you can replace the requirements.txt in the root folder and run **create_env.sh** to create the content of **./env**
-1. setup your system for automatic deploy:
+4. setup your system for automatic deploy:
   * install AWS-cli
   * create and save IAM credentials
   * install terraform
-1. Deploy:
+5. Deploy:
   * edit the variable.tf file for custom names
   * run upload.sh
 
@@ -203,3 +215,9 @@ curl $(terraform output -raw deployment_invoke_url)
 
 #  the same is done at the end of **upload.sh** to test the API
 ```
+***
+## Next steps
+
+This is a fast example to deploy your python app. It is a good start, but depending on the architecture of your project you may want to organize the infrastructure in some specific way.
+
+One improvement, is to separe concerns in terraform to deploy only some parts of the infractructure. For example when you modify the code but you want to preserve the same api gateway. Check [this article]()
